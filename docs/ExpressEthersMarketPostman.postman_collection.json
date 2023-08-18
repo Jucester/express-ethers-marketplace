@@ -1,0 +1,202 @@
+{
+	"info": {
+		"_postman_id": "b56e1948-424c-4509-98b2-0831fc19e10d",
+		"name": "ExpressEthersMarketPostman",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "findNfts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:4000/api/nfts",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"nfts"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "approved",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createNftListing",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n            \"ownerId\": \"1312312\",\n            \"collectionAddress\": \"0x597C9bC3F00a4Df00F85E9334628f6cDf03A1184\",\n            \"erc20Address\": \"0xbd65c58D6F46d5c682Bf2f36306D461e3561C747\",\n            \"tokenId\": 150,\n            \"baseOrSellPrice\": 100,\n            \"status\": \"fixedPrice\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:4000/api/nfts/create",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"nfts",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "findOffers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:4000/api/offers",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"offers"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "approved",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "findOfferById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:4000/api/offers/:id",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"offers",
+						":id"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "approved",
+							"disabled": true
+						}
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "f20a509c-3344-49c5-9166-6001d1e2ebbb"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "findOfferbyId",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:4000/api/offers/f20a509c-3344-49c5-9166-6001d1e2ebbb",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"offers",
+						"f20a509c-3344-49c5-9166-6001d1e2ebbb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createOffer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"f20a509c-3344-49c5-9166-6001d1e2ebde\",\n    \"tokenId\": 129,\n    \"amount\": 0.2,\n    \"buyerId\": \"00bd0c74-2eff-42c0-a9eb-261bcad1b3ea\",\n    \"buyerAddress\": \"0xcE7107ec6EDa6027c7757826a5De4F98c1278205\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:4000/api/offers/create",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"offers",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "acceptOffer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:4000/api/offers/f20a509c-3344-49c5-9166-6001d1e2ebbd/accept",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"api",
+						"offers",
+						"f20a509c-3344-49c5-9166-6001d1e2ebbd",
+						"accept"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
