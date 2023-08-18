@@ -7,7 +7,7 @@ Express Backend that uses Ethers.js to interact with an NFT Marketplace contract
 In order to run this project you need to create an .env file (like the example) and provide the keys for the USER A and the USER B.
 
 After that, you should go to the users repository in the users module folder:
-- /users/infrastructure/persistence/repositories
+- >users>infrastructure>persistence>repositories
 
 And change the wallets in the users for the ones you will use to tests.
 (I did this to simulate users interacting in the app)
