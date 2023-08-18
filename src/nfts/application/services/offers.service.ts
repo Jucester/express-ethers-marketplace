@@ -15,6 +15,10 @@ import { Nft, SaleStatus } from '../../domain/entities/nft.entity';
 import { parseEther } from 'ethers';
 import { ERC721Contract } from '../../../shared/infrastructure/contracts/erc721-contract';
 import { ERC20Contract } from '../../../shared/infrastructure/contracts/erc20-contract';
+import {
+    FormatResponse,
+    MessagesEntity,
+} from '../../../shared/infrastructure/utils/format-response';
 
 class OffersService implements IService {
     private async finishOffer(args: any) {
@@ -59,14 +63,11 @@ class OffersService implements IService {
 
         // Check if the buyer still have the nft
         const owner = await erc721ContractInstance.ownerOf(tokenId);
-
         if (!owner) {
-            return {
+            return FormatResponse({
                 statusCode: 400,
-                response: {
-                    error: 'Invalid Offer. This NFT have another owner.',
-                },
-            };
+                customMessage: 'Invalid Offer. This NFT have another owner.',
+            });
         }
 
         // Validate if the NFT can be transfered
@@ -77,12 +78,11 @@ class OffersService implements IService {
             MarketplaceContract.address === approvedToTransfer;
 
         if (!validTransfer) {
-            return {
+            return FormatResponse({
                 statusCode: 400,
-                response: {
-                    error: 'This NFT is not approved to be transfer in this marketplace.',
-                },
-            };
+                customMessage:
+                    'This NFT is not approved to be transfer in this marketplace.',
+            });
         }
 
         // Check allowance and all related to the ERC20
@@ -99,12 +99,11 @@ class OffersService implements IService {
         const validateAllowance = allowance > parseEther(amount.toString());
 
         if (!validateAllowance) {
-            return {
+            return FormatResponse({
                 statusCode: 400,
-                response: {
-                    error: 'Insufficient ERC20 Allowance to be transfer in this marketplace.',
-                },
-            };
+                customMessage:
+                    'Insufficient ERC20 Allowance to be transfer in this marketplace.',
+            });
         }
     }
 
@@ -138,28 +137,20 @@ class OffersService implements IService {
     async findAll(params: { status: string }) {
         const result = await OffersRepository.findAll(params);
 
-        return {
-            statusCode: 200,
-            response: result,
-        };
+        return FormatResponse({ statusCode: 200, response: result });
     }
 
     async findById(id: string): Promise<IResponse> {
         const result = OffersRepository.findById(id);
 
         if (!result) {
-            return {
+            return FormatResponse({
                 statusCode: 404,
-                response: {
-                    message: 'Item not found',
-                },
-            };
+                response: MessagesEntity.ERR_ID_NOT_FOUND,
+            });
         }
 
-        return {
-            statusCode: 200,
-            response: result,
-        };
+        return FormatResponse({ statusCode: 200, response: result });
     }
 
     async create(body: any) {
@@ -168,46 +159,37 @@ class OffersService implements IService {
             const nft = await NftsRepository.findById(body.tokenId);
 
             if (!nft) {
-                return {
+                return FormatResponse({
                     statusCode: 400,
-                    response: {
-                        message: 'Item not found',
-                    },
-                };
+                    customMessage: MessagesEntity.ERR_ID_NOT_FOUND,
+                });
             }
 
             // Valida if nft is for sale
             if (nft.status === SaleStatus.NotForSale) {
-                return {
+                return FormatResponse({
                     statusCode: 400,
-                    response: {
-                        message: 'This NFT Is not for Sale',
-                    },
-                };
+                    customMessage: 'Nft not for sale',
+                });
             }
 
             // Validate if the offer amount is greater than the current bid or the same as the fixed price
             const offerAmount = parseEther(body.amount.toString());
             const nftPrice = parseEther(nft.baseOrSellPrice.toString());
             if (offerAmount < nftPrice) {
-                return {
+                return FormatResponse({
                     statusCode: 400,
-                    response: {
-                        message: 'The amount is less than the current price',
-                    },
-                };
+                    customMessage: 'Amount is less than the current price',
+                });
             }
 
             // Validate if the buyer have enough balance to buy the nft
             const buyerBalance = await getAddressBalance(body.buyerAddress);
             if (buyerBalance < offerAmount) {
-                return {
+                return FormatResponse({
                     statusCode: 400,
-                    response: {
-                        message:
-                            "You don't have enough funds to make this offer",
-                    },
-                };
+                    customMessage: 'Insufficient funds',
+                });
             }
 
             // If everything is good, create the offer
@@ -216,16 +198,10 @@ class OffersService implements IService {
                 status: 'pending',
             });
 
-            return {
-                statusCode: 201,
-                response: result,
-            };
+            return FormatResponse({ statusCode: 201, response: result });
         } catch (error) {
             console.log('Err', error);
-            return {
-                statusCode: 500,
-                response: error,
-            };
+            return FormatResponse({ statusCode: 500, response: error });
         }
     }
 
@@ -236,12 +212,10 @@ class OffersService implements IService {
             const result = await NftsRepository.findById(response.tokenId);
 
             if (!result)
-                return {
-                    statusCode: 200,
-                    response: {
-                        message: 'Nft not found'
-                    },
-                };
+                return FormatResponse({
+                    statusCode: 400,
+                    customMessage: 'Ntf not found',
+                });
 
             // If the offer is accepted, procceed to execute the finish auction in the Marketplace Contract
             if (payload.status === OfferStatus.Accepted) {
@@ -252,16 +226,10 @@ class OffersService implements IService {
                 ...payload,
             });
 
-            return {
-                statusCode: 200,
-                response: updatedOffer,
-            };
+            return FormatResponse({ statusCode: 200, response: updatedOffer });
         } catch (error) {
             console.log('Error =>', error);
-            return {
-                statusCode: 500,
-                response: error,
-            };
+            return FormatResponse({ statusCode: 500, response: error });
         }
     }
 }

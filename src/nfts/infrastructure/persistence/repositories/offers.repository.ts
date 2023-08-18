@@ -19,6 +19,14 @@ let offers: Offer[] = [
         buyerAddress: '0xcE7107ec6EDa6027c7757826a5De4F98c1278905',
         status: OfferStatusEnum.parse('pending'),
     },
+    {
+        id: 'f20a509c-3344-49c5-9166-6001d1e2ebbd',
+        tokenId: 130,
+        amount: 0.012,
+        buyerId: '4d717326-ea6a-46dc-a57a-77c70fe692af',
+        buyerAddress: '0xE5754D48EBb64F9C5afb63db6bedfE7e46e72Faf',
+        status: OfferStatusEnum.parse('pending'),
+    },
 ];
 
 class OffersRepository {

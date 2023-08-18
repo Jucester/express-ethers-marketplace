@@ -1,5 +1,6 @@
 import {
     JsonRpcProvider,
+    getDefaultProvider,
     Wallet,
     solidityPacked,
     keccak256,
@@ -35,18 +36,19 @@ const nodes = [
 //   }
 // }
 
+// export const getProvider = async () =>
+//     new JsonRpcProvider('https://rpc.sepolia.org/', 11155111, {
+//         batchMaxCount: 1,
+//     });
 
-
-
-
-export const getProvider = async () =>
-    new JsonRpcProvider('https://rpc.sepolia.org/', 11155111, {
-        batchMaxCount: 1,
+export const getProvider = async () => {
+    const provider = getDefaultProvider('sepolia', {
+        alchemy: 'AH7RWlg8OE9zW1Sjt-2wb2BuPCbEGWH7',
+        // etherscan: 'QZWCY4D6B52R7QH11NTKJUQCEKI7NHHTXA',
     });
 
-
-
-
+    return provider;
+};
 
 export const getWallet = async () =>
     new Wallet(<string>process.env.PRIVATE_KEY, await getProvider());
@@ -85,7 +87,7 @@ export const getSignatures = async (auctionData: any) => {
     );
 
     return {
-        buyerSignature,
-        ownerSignature
-    }
+        buyerSignature: ownerSignature,
+        ownerSignature: buyerSignature,
+    };
 };

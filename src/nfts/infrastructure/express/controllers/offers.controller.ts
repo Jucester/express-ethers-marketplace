@@ -29,7 +29,8 @@ class OffersController implements IController {
             req.params.id,
             req.body
         );
-        return res.status(statusCode).json(response);
+
+        return res.status(statusCode).send(response);
     }
 }
 

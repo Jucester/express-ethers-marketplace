@@ -1,5 +1,9 @@
 import NftsRepository from '../../infrastructure/persistence/repositories/nfts.repository';
 import { IService } from '../../../shared/domain/interfaces/IService';
+import { getProvider, getWallet } from '../../../shared/infrastructure/utils/ethers-utils';
+import { getContract } from '../../../shared/infrastructure/utils/contract-utils';
+import { ERC721Contract } from '../../../shared/infrastructure/contracts/erc721-contract';
+import { users } from '../../../users/infrastructure/persistence/repositories/users.repository';
 
 class NftsService implements IService {
     async findAll(params: { query: any }) {
@@ -31,23 +35,32 @@ class NftsService implements IService {
 
     async create(body: any) {
         try {
-            // const provider = getProvider();
-            // const wallet = getWallet(provider);
+            // const wallet = await getWallet();
 
-            // const contract = getContract({
+            // const contract = await getContract({
             //     contractData: ERC721Contract,
             //     providerOrSigner: wallet,
             // });
 
-            // const mintResponse = await contract.mint(users[0].wallet);
+            // console.log('Contract', contract);
+
+            // const mintResponse = await contract.mint(users[1].wallet);
+            // console.log('Minted', mintResponse);
             // const receipt = await mintResponse.wait();
 
+            // console.log('Recept', receipt)
+
+            // const result = await NftsRepository.create(body)
+
+            // console.log('Res', result)
             // return {
             //     statusCode: 200,
             //     response: {
             //         message: receipt.toString(),
             //     },
             // };
+
+            
             const result = await NftsRepository.create(body);
 
             return {
