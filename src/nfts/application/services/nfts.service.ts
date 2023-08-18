@@ -1,36 +1,33 @@
 import NftsRepository from '../../infrastructure/persistence/repositories/nfts.repository';
 import { IService } from '../../../shared/domain/interfaces/IService';
-import { getProvider, getWallet } from '../../../shared/infrastructure/utils/ethers-utils';
+import {
+    getProvider,
+    getWallet,
+} from '../../../shared/infrastructure/utils/ethers-utils';
 import { getContract } from '../../../shared/infrastructure/utils/contract-utils';
 import { ERC721Contract } from '../../../shared/infrastructure/contracts/erc721-contract';
 import { users } from '../../../users/infrastructure/persistence/repositories/users.repository';
+import { FormatResponse } from '../../../shared/infrastructure/utils/format-response';
 
-class NftsService implements IService {
+class NftsService {
     async findAll(params: { query: any }) {
         const { query } = params;
         const result = await NftsRepository.findAll({ query });
 
-        return {
-            statusCode: 200,
-            response: result,
-        };
+        return FormatResponse({ statusCode: 200, response: result });
     }
 
     async findById(id: string) {
         const result = await NftsRepository.findById(parseInt(id));
 
         if (!result) {
-            return {
+            return FormatResponse({
                 statusCode: 404,
-                response: {
-                    message: 'Item not found',
-                },
-            };
+                customMessage: 'Item not found',
+            });
         }
-        return {
-            statusCode: 200,
-            response: result,
-        };
+
+        return FormatResponse({ statusCode: 200, response: result });
     }
 
     async create(body: any) {
@@ -60,29 +57,13 @@ class NftsService implements IService {
             //     },
             // };
 
-            
             const result = await NftsRepository.create(body);
 
-            return {
-                statusCode: 201,
-                response: result,
-            };
+            return FormatResponse({ statusCode: 200, response: result });
         } catch (error) {
             console.log('Err', error);
-            return {
-                statusCode: 500,
-                response: error,
-            };
+            return FormatResponse({ statusCode: 500, response: { error } });
         }
-    }
-
-    async findByOwnerAddress(address: string) {
-        return {
-            statusCode: 200,
-            response: {
-                message: 'test',
-            },
-        };
     }
 }
 

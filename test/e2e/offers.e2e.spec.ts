@@ -24,9 +24,10 @@ describe('Offers Routes', () => {
     });
 
     it('GET /api/offers/:id should return a specific offer', async () => {
-        const { body: response } = await request(url)
+        const { body } = await request(url)
             .get(`/offers/f20a509c-3344-49c5-9166-6001d1e2ebbb`)
             .expect(200);
+        const { response } = body;
 
         expect(response).toHaveProperty('id');
         expect(response).toHaveProperty('tokenId');
@@ -36,11 +37,9 @@ describe('Offers Routes', () => {
     });
 
     it("GET /api/offers/:id should return 404 if NFT doesn't exists", async () => {
-        const { body: response } = await request(url)
-            .get(`/offers/4000`)
-            .expect(404);
+        const { body } = await request(url).get(`/offers/4000`).expect(404);
 
-        expect(response.message).toBe('Item not found');
+        expect(body.response.message).toBe('Item not found');
     });
 
     it('POST /api/offers/create should return error if the nft of the offer does not exists', async () => {
@@ -52,12 +51,12 @@ describe('Offers Routes', () => {
             buyerAddress: users[1].wallet,
         };
 
-        const { body: response } = await request(url)
+        const { body } = await request(url)
             .post('/offers/create')
             .send(offerData)
             .expect(400);
 
-        expect(response.message).toBe('Item not found');
+        expect(body.response.message).toBe('Item not found');
     });
 
     it('POST /api/offers/create should return error if the nft is not for sale', async () => {
@@ -69,29 +68,29 @@ describe('Offers Routes', () => {
             buyerAddress: users[1].wallet,
         };
 
-        const { body: response } = await request(url)
+        const { body } = await request(url)
             .post('/offers/create')
             .send(offerData)
             .expect(400);
 
-        expect(response.message).toBe('This NFT Is not for Sale');
+        expect(body.response.message).toBe('NFT not for sale');
     });
 
-    it('POST /api/offers/create should return error if the offer amount is less than the current prince of the nft', async () => {
+    it('POST /api/offers/create should return error if the offer amount is less than the current price of the nft', async () => {
         const offerData = {
             id: 'f20a509c-3344-49c5-9166-6001d1e2ebbb',
             tokenId: 129,
-            amount: 0.005,
+            amount: 0.0005,
             buyerId: users[1].id,
             buyerAddress: users[1].wallet,
         };
 
-        const { body: response } = await request(url)
+        const { body } = await request(url)
             .post('/offers/create')
             .send(offerData)
             .expect(400);
 
-        expect(response.message).toBe(
+        expect(body.response.message).toBe(
             'The amount is less than the current price'
         );
     });
@@ -100,22 +99,20 @@ describe('Offers Routes', () => {
         const offerData = {
             id: 'f20a509c-3344-49c5-9166-6001d1e2ebbb',
             tokenId: 129,
-            amount: 1.5,
+            amount: 10,
             buyerId: users[1].id,
             buyerAddress: users[1].wallet,
         };
 
-        const { body: response } = await request(url)
+        const { body } = await request(url)
             .post('/offers/create')
             .send(offerData)
             .expect(400);
 
-        expect(response.message).toBe(
-            "You don't have enough funds to make this offer"
-        );
+        expect(body.response.message).toBe('Insufficient funds');
     });
 
-    it.only('POST /api/offers/create should create a new offer if everything is correct', async () => {
+    it('POST /api/offers/create should create a new offer if everything is correct', async () => {
         const offerData = {
             id: 'f20a509c-3344-49c5-9166-6001d1e2ebbc',
             tokenId: 129,
@@ -124,15 +121,15 @@ describe('Offers Routes', () => {
             buyerAddress: users[1].wallet,
         };
 
-        const { body: response } = await request(url)
+        const { body } = await request(url)
             .post('/offers/create')
             .send(offerData)
             .expect(201);
 
-        expect(response.id).toBe(offerData.id);
-        expect(response.buyerId).toBe(offerData.buyerId);
-        expect(response.buyerAddress).toBe(offerData.buyerAddress);
-        expect(response.amount).toBe(offerData.amount);
-        expect(response.status).toBe('pending');
+        expect(body.response.id).toBe(offerData.id);
+        expect(body.response.buyerId).toBe(offerData.buyerId);
+        expect(body.response.buyerAddress).toBe(offerData.buyerAddress);
+        expect(body.response.amount).toBe(offerData.amount);
+        expect(body.response.status).toBe('pending');
     });
 });

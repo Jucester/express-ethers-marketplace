@@ -1,50 +1,15 @@
 import {
-    JsonRpcProvider,
     getDefaultProvider,
     Wallet,
-    solidityPacked,
-    keccak256,
-    getBytes,
+    utils,
 } from 'ethers';
 
-const nodes = [
-    'https://rpc.sepolia.org/',
-    'https://rpc2.sepolia.org/ ',
-    'https://rpc-sepolia.rockx.com/',
-];
-
-// function wait(ms: number) {
-//   return new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//       resolve(true)
-//     }, ms)
-//   })
-// }
-
-// async function retryRPCPromiseWithDelay(promise: any, retriesLeft: number, delay: any) {
-//   try {
-//     const data = await promise
-
-//     return data
-//   } catch (error) {
-//     if (retriesLeft === 0) {
-//       return Promise.reject(error)
-//     }
-//     console.log(`${retriesLeft} retries left`)
-//     await wait(delay)
-//     return retryRPCPromiseWithDelay(promise, retriesLeft - 1, 1000)
-//   }
-// }
-
 // export const getProvider = async () =>
-//     new JsonRpcProvider('https://rpc.sepolia.org/', 11155111, {
-//         batchMaxCount: 1,
-//     });
+//     new providers.JsonRpcProvider('https://rpc.sepolia.org/', 11155111);
 
 export const getProvider = async () => {
-    const provider = getDefaultProvider('sepolia', {
-        alchemy: 'AH7RWlg8OE9zW1Sjt-2wb2BuPCbEGWH7',
-        // etherscan: 'QZWCY4D6B52R7QH11NTKJUQCEKI7NHHTXA',
+    const provider = await getDefaultProvider('sepolia', {
+        etherscan: process.env.ETHERSCAN_API_KEY
     });
 
     return provider;
@@ -59,7 +24,7 @@ export const getAddressBalance = async (address: string) => {
 };
 
 export const getSignatures = async (auctionData: any) => {
-    const packedBid = solidityPacked(
+    const packedBid = utils.solidityPack(
         ['address', 'address', 'uint256', 'uint256'],
         [
             auctionData.collectionAddress,
@@ -74,20 +39,20 @@ export const getSignatures = async (auctionData: any) => {
     const buyerKey = process.env.BUYER_KEY;
     const buyerWallet = new Wallet(buyerKey as string, provider);
 
-    const buyerHash = keccak256(packedBid);
-    const buyerSignature = await buyerWallet.signMessage(getBytes(buyerHash));
+    const buyerHash = utils.keccak256(packedBid);
+    const buyerSignature = await buyerWallet.signMessage(utils.arrayify(buyerHash));
 
     // Owner
     const ownerPrivateKey = process.env.PRIVATE_KEY as string;
     const ownerWallet = new Wallet(ownerPrivateKey, provider);
 
-    const hashedbuyerSig = keccak256(getBytes(buyerSignature));
+    const hashedbuyerSig = utils.keccak256(utils.arrayify(buyerSignature));
     const ownerSignature = await ownerWallet.signMessage(
-        getBytes(hashedbuyerSig)
+        utils.arrayify(hashedbuyerSig)
     );
 
     return {
-        buyerSignature: ownerSignature,
-        ownerSignature: buyerSignature,
+        buyerSignature,
+        ownerSignature
     };
 };

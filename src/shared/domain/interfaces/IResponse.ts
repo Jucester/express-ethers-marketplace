@@ -1,9 +1,9 @@
 export default interface IResponse {
-  statusCode: number;
-  response:
-    | {
-        message?: string;
-        error?: {};
-      }
-    | any;
+    response:
+        | {
+              statusCode: number;
+              message?: string;
+              error?: {};
+          }
+        | any;
 }

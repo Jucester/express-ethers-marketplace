@@ -21,10 +21,10 @@ let offers: Offer[] = [
     },
     {
         id: 'f20a509c-3344-49c5-9166-6001d1e2ebbd',
-        tokenId: 130,
+        tokenId: 131,
         amount: 0.012,
-        buyerId: '4d717326-ea6a-46dc-a57a-77c70fe692af',
-        buyerAddress: '0xE5754D48EBb64F9C5afb63db6bedfE7e46e72Faf',
+        buyerId: users[1].id,
+        buyerAddress: users[1].wallet,
         status: OfferStatusEnum.parse('pending'),
     },
 ];

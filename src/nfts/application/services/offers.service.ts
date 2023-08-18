@@ -12,7 +12,7 @@ import { getContract } from '../../../shared/infrastructure/utils/contract-utils
 import IResponse from '../../../shared/domain/interfaces/IResponse';
 import { Offer, OfferStatus } from '../../domain/entities/offer.entity';
 import { Nft, SaleStatus } from '../../domain/entities/nft.entity';
-import { parseEther } from 'ethers';
+import { utils } from 'ethers';
 import { ERC721Contract } from '../../../shared/infrastructure/contracts/erc721-contract';
 import { ERC20Contract } from '../../../shared/infrastructure/contracts/erc20-contract';
 import {
@@ -31,7 +31,7 @@ class OffersService implements IService {
             providerOrSigner: wallet,
         });
 
-        const bid = parseEther(amount.toString());
+        const bid = utils.parseEther(amount.toString());
 
         const offer = {
             tokenId,
@@ -42,15 +42,36 @@ class OffersService implements IService {
 
         const signatures = await getSignatures(offer);
 
+        console.log('HERE?', signatures);
+
+        const feeData: any = await wallet.getFeeData();
+        console.log(
+            'Gas',
+            utils.formatUnits(feeData.gasPrice, 'gwei'),
+            utils.formatUnits(feeData.lastBaseFeePerGas, 'gwei')
+        );
+
         const auction = await marketplaceContractInstance.finishAuction(
             offer,
             signatures.buyerSignature,
-            signatures.ownerSignature
+            signatures.ownerSignature,
+            // {
+            //     gasPrice: utils.formatUnits(feeData.gasPrice, 'gwei'),
+            //     gasLimit: utils.formatUnits(feeData.lastBaseFeePerGas, 'gwei'),
+            // }
+            {
+                gasPrice: utils.parseUnits('100', 'gwei'),
+                gasLimit: 1000000,
+            }
         );
 
-        const recepit = await auction.wait();
+        console.log('Not here', auction);
 
-        return recepit;
+        const receipt = await auction.wait();
+
+        console.log('Receipt', receipt);
+
+        return receipt;
     }
 
     private async validateTransfer(args: any) {
@@ -96,7 +117,9 @@ class OffersService implements IService {
             MarketplaceContract.address
         );
 
-        const validateAllowance = allowance > parseEther(amount.toString());
+        const validateAllowance = allowance.gte(
+            utils.parseEther(amount.toString())
+        );
 
         if (!validateAllowance) {
             return FormatResponse({
@@ -108,13 +131,20 @@ class OffersService implements IService {
     }
 
     private async offerAccepted(nft: Nft, payload: Offer) {
+        if (nft.status === SaleStatus.NotForSale) {
+            return FormatResponse({
+                statusCode: 400,
+                customMessage: 'Nft not for sale',
+            });
+        }
+
         const validation = await this.validateTransfer({
             tokenId: payload.tokenId,
             amount: payload.amount,
             buyerAddress: payload.buyerAddress,
         });
 
-        if (validation && validation.statusCode === 400) {
+        if (validation && validation.response.statusCode === 400) {
             return validation;
         }
 
@@ -128,10 +158,10 @@ class OffersService implements IService {
             status: OfferStatus.Accepted,
         });
 
-        return {
+        return FormatResponse({
             statusCode: 200,
             response: offerApprovedReceipt,
-        };
+        });
     }
 
     async findAll(params: { status: string }) {
@@ -146,7 +176,7 @@ class OffersService implements IService {
         if (!result) {
             return FormatResponse({
                 statusCode: 404,
-                response: MessagesEntity.ERR_ID_NOT_FOUND,
+                customMessage: MessagesEntity.ERR_ID_NOT_FOUND,
             });
         }
 
@@ -169,23 +199,23 @@ class OffersService implements IService {
             if (nft.status === SaleStatus.NotForSale) {
                 return FormatResponse({
                     statusCode: 400,
-                    customMessage: 'Nft not for sale',
+                    customMessage: 'NFT not for sale',
                 });
             }
 
             // Validate if the offer amount is greater than the current bid or the same as the fixed price
-            const offerAmount = parseEther(body.amount.toString());
-            const nftPrice = parseEther(nft.baseOrSellPrice.toString());
-            if (offerAmount < nftPrice) {
+            const offerAmount = utils.parseEther(body.amount.toString());
+            const nftPrice = utils.parseEther(nft.baseOrSellPrice.toString());
+            if (!offerAmount.gte(nftPrice)) {
                 return FormatResponse({
                     statusCode: 400,
-                    customMessage: 'Amount is less than the current price',
+                    customMessage: 'The amount is less than the current price',
                 });
             }
 
             // Validate if the buyer have enough balance to buy the nft
             const buyerBalance = await getAddressBalance(body.buyerAddress);
-            if (buyerBalance < offerAmount) {
+            if (!buyerBalance.gte(offerAmount)) {
                 return FormatResponse({
                     statusCode: 400,
                     customMessage: 'Insufficient funds',
@@ -200,8 +230,7 @@ class OffersService implements IService {
 
             return FormatResponse({ statusCode: 201, response: result });
         } catch (error) {
-            console.log('Err', error);
-            return FormatResponse({ statusCode: 500, response: error });
+            return FormatResponse({ statusCode: 500, response: { error } });
         }
     }
 
@@ -227,9 +256,8 @@ class OffersService implements IService {
             });
 
             return FormatResponse({ statusCode: 200, response: updatedOffer });
-        } catch (error) {
-            console.log('Error =>', error);
-            return FormatResponse({ statusCode: 500, response: error });
+        } catch (error: any) {
+            return FormatResponse({ statusCode: 500, response: { error } });
         }
     }
 }
