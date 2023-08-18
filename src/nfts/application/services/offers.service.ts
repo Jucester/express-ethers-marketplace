@@ -19,9 +19,10 @@ import {
     FormatResponse,
     MessagesEntity,
 } from '../../../shared/infrastructure/utils/format-response';
+import { Auction } from '../../domain/entities/auction.entity';
 
 class OffersService implements IService {
-    private async finishOffer(args: any) {
+    private async finishOffer(args: { amount: number; nft: Nft }) {
         const { amount, nft } = args;
         const { tokenId, collectionAddress, erc20Address } = nft;
 
@@ -33,7 +34,7 @@ class OffersService implements IService {
 
         const bid = utils.parseEther(amount.toString());
 
-        const offer = {
+        const offer: Auction = {
             tokenId,
             erc20Address,
             collectionAddress,
@@ -62,7 +63,11 @@ class OffersService implements IService {
         return receipt;
     }
 
-    private async validateTransfer(args: any) {
+    private async validateTransfer(args: {
+        tokenId: number;
+        buyerAddress: string;
+        amount: number;
+    }) {
         const { tokenId, buyerAddress, amount } = args;
         const provider = await getProvider();
         const erc721ContractInstance = await getContract({
@@ -171,7 +176,7 @@ class OffersService implements IService {
         return FormatResponse({ statusCode: 200, response: result });
     }
 
-    async create(body: any) {
+    async create(body: Offer) {
         try {
             // Validate if the nft exists
             const nft = await NftsRepository.findById(body.tokenId);
@@ -213,7 +218,7 @@ class OffersService implements IService {
             // If everything is good, create the offer
             const result = await OffersRepository.create({
                 ...body,
-                status: 'pending',
+                status: OfferStatus.Pending,
             });
 
             return FormatResponse({ statusCode: 201, response: result });
@@ -222,7 +227,7 @@ class OffersService implements IService {
         }
     }
 
-    async updateById(id: string, payload: any) {
+    async updateById(id: string, payload: Partial<Offer>) {
         try {
             const { response } = await this.findById(id);
 
@@ -244,7 +249,7 @@ class OffersService implements IService {
             });
 
             return FormatResponse({ statusCode: 200, response: updatedOffer });
-        } catch (error: any) {
+        } catch (error) {
             return FormatResponse({ statusCode: 500, response: { error } });
         }
     }

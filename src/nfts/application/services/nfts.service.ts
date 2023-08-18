@@ -8,9 +8,10 @@ import { getContract } from '../../../shared/infrastructure/utils/contract-utils
 import { ERC721Contract } from '../../../shared/infrastructure/contracts/erc721-contract';
 import { users } from '../../../users/infrastructure/persistence/repositories/users.repository';
 import { FormatResponse } from '../../../shared/infrastructure/utils/format-response';
+import { Nft } from '../../domain/entities/nft.entity';
 
 class NftsService {
-    async findAll(params: { query: any }) {
+    async findAll(params: { query: Record<string, any> }) {
         const { query } = params;
         const result = await NftsRepository.findAll({ query });
 
@@ -30,7 +31,7 @@ class NftsService {
         return FormatResponse({ statusCode: 200, response: result });
     }
 
-    async create(body: any) {
+    async create(body: Nft) {
         try {
             // const wallet = await getWallet();
 

@@ -1,15 +1,12 @@
-import {
-    getDefaultProvider,
-    Wallet,
-    utils,
-} from 'ethers';
+import { getDefaultProvider, Wallet, utils } from 'ethers';
+import { Auction } from '../../../nfts/domain/entities/auction.entity';
 
 // export const getProvider = async () =>
 //     new providers.JsonRpcProvider('https://rpc.sepolia.org/', 11155111);
 
 export const getProvider = async () => {
     const provider = await getDefaultProvider('sepolia', {
-        etherscan: process.env.ETHERSCAN_API_KEY
+        etherscan: process.env.ETHERSCAN_API_KEY,
     });
 
     return provider;
@@ -23,7 +20,7 @@ export const getAddressBalance = async (address: string) => {
     return await provider.getBalance(address);
 };
 
-export const getSignatures = async (auctionData: any) => {
+export const getSignatures = async (auctionData: Auction) => {
     const packedBid = utils.solidityPack(
         ['address', 'address', 'uint256', 'uint256'],
         [
@@ -40,7 +37,9 @@ export const getSignatures = async (auctionData: any) => {
     const buyerWallet = new Wallet(buyerKey as string, provider);
 
     const buyerHash = utils.keccak256(packedBid);
-    const buyerSignature = await buyerWallet.signMessage(utils.arrayify(buyerHash));
+    const buyerSignature = await buyerWallet.signMessage(
+        utils.arrayify(buyerHash)
+    );
 
     // Owner
     const ownerPrivateKey = process.env.PRIVATE_KEY as string;
@@ -53,6 +52,6 @@ export const getSignatures = async (auctionData: any) => {
 
     return {
         buyerSignature,
-        ownerSignature
+        ownerSignature,
     };
 };

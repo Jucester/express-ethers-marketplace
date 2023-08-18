@@ -21,7 +21,7 @@ let offers: Offer[] = [
     },
     {
         id: 'f20a509c-3344-49c5-9166-6001d1e2ebbd',
-        tokenId: 139,
+        tokenId: 140,
         amount: 0.012,
         buyerId: users[1].id,
         buyerAddress: users[1].wallet,
@@ -40,7 +40,7 @@ class OffersRepository {
         return offers;
     }
 
-    create(body: any) {
+    create(body: Omit<Offer, 'id'>) {
         const offer = {
             id: v4(),
             ...body,
@@ -55,10 +55,10 @@ class OffersRepository {
         return offers.find((offer) => offer.id === id);
     }
 
-    updateById(id: string, payload: any) {
+    updateById(id: string, payload: Partial<Offer>) {
         const offer = offers.findIndex((obj) => obj.id === id);
 
-        offers[offer].status = payload.status;
+        offers[offer].status = payload.status!;
 
         return offers[offer];
     }

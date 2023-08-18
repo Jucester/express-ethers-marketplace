@@ -37,7 +37,7 @@ export let nfts: Nft[] = [
     {
         ownerId: users[0].id,
         collectionAddress: '0xFCE9b92eC11680898c7FE57C4dDCea83AeabA3ff',
-        tokenId: 139,
+        tokenId: 140,
         status: SaleStatusEnum.parse('fixedPrice'),
         erc20Address: '0xbd65c58D6F46d5c682Bf2f36306D461e3561C747',
         baseOrSellPrice: 0.01,
@@ -45,7 +45,7 @@ export let nfts: Nft[] = [
 ];
 
 class NftsRepository {
-    findAll(params: { query: any }) {
+    findAll(params: { query: Record<string, any> }) {
         const { query } = params;
 
         if (query.ownerId) {
