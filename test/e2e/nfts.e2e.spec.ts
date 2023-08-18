@@ -21,8 +21,9 @@ describe('NFTs Routes', () => {
 
     it('GET /api/nfts/:id should return a specific NFT listing', async () => {
         const tokenId = 128;
-        const { body: response }  = await request(url).get(`/nfts/${tokenId}`).expect(200);
+        const { body }  = await request(url).get(`/nfts/${tokenId}`).expect(200);
 
+        const { response } = body;
 
         expect(response).toHaveProperty('ownerId');
         expect(response).toHaveProperty('collectionAddress');
@@ -34,14 +35,14 @@ describe('NFTs Routes', () => {
 
     it('GET /api/nfts/:id should return 404 if NFT doesn\'t exists', async () => {
         const tokenId = 2211;
-        const { body: response } = await request(url).get(`/nfts/${tokenId}`).expect(404);
+        const { body } = await request(url).get(`/nfts/${tokenId}`).expect(404);
 
-        expect(response.message).toBe('Item not found');
+        expect(body.response.message).toBe('Item not found');
     });
 
     it('POST /api/nfts/create should create a new NFT listing', async () => {
         const nftData = {
-            ownerId: 4,
+            ownerId: "UU1D-4444",
             collectionAddress: '0x123456789',
             erc20Address: '0x987654321',
             tokenId: 123,
@@ -49,10 +50,12 @@ describe('NFTs Routes', () => {
             status: 'fixedPrice',
         };
 
-        const { body: response } = await request(url)
+        const { body } = await request(url)
             .post('/nfts/create')
             .send(nftData)
             .expect(201);
+
+        const { response } = body;
 
         expect(response.ownerId).toBe(nftData.ownerId);
         expect(response.collectionAddress).toBe(nftData.collectionAddress);

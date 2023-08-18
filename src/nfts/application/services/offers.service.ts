@@ -41,15 +41,7 @@ class OffersService implements IService {
         };
 
         const signatures = await getSignatures(offer);
-
-        console.log('HERE?', signatures);
-
-        const feeData: any = await wallet.getFeeData();
-        console.log(
-            'Gas',
-            utils.formatUnits(feeData.gasPrice, 'gwei'),
-            utils.formatUnits(feeData.lastBaseFeePerGas, 'gwei')
-        );
+        // const feeData: any = await wallet.getFeeData();
 
         const auction = await marketplaceContractInstance.finishAuction(
             offer,
@@ -65,11 +57,7 @@ class OffersService implements IService {
             }
         );
 
-        console.log('Not here', auction);
-
         const receipt = await auction.wait();
-
-        console.log('Receipt', receipt);
 
         return receipt;
     }

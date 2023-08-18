@@ -12,9 +12,7 @@ export const FormatResponse = (args: {
 }) => {
     const { statusCode, response, customMessage } = args;
     return {
-        response: {
-            statusCode,
-            response: response ? response : { message: customMessage },
-        },
+        statusCode,
+        response: response ? response : { message: customMessage },
     };
 };

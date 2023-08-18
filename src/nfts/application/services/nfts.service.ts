@@ -59,7 +59,7 @@ class NftsService {
 
             const result = await NftsRepository.create(body);
 
-            return FormatResponse({ statusCode: 200, response: result });
+            return FormatResponse({ statusCode: 201, response: result });
         } catch (error) {
             console.log('Err', error);
             return FormatResponse({ statusCode: 500, response: { error } });
